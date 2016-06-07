@@ -5,22 +5,27 @@
     android:layout_height="match_parent"
     tools:context="com.cespedes.tatiana.proyfinal.MainActivity">
 
-    <HorizontalScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent">
+    <com.cespedes.tatiana.proyfinal.CustomHorizontalScrollView
+        android:id="@+id/SVhorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             >
-            <ScrollView
+
+            <com.cespedes.tatiana.proyfinal.CustomScrollView
+                android:id="@+id/SVvertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content" >
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    >
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -35,19 +40,22 @@
                             />
                     </LinearLayout>
 
-                    <LinearLayout
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/texto"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:gravity="center"
+                        android:layout_gravity="center"
+                        />
+
+                    <ImageView
                         android:layout_width="700dp"
-                        android:layout_height="250dp"
-                        android:background="@drawable/protoboard"
-                        android:id="@+id/Protoboard"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/texto"
-                            android:textColor="@color/colorPrimaryDark"
-                            />
-                    </LinearLayout>
+                        android:layout_height="230dp"
+                        android:id="@+id/protoboard"
+                        android:src="@drawable/protoboard"
+                        />
+
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -64,9 +72,9 @@
 
                 </LinearLayout>
 
-            </ScrollView>
+            </com.cespedes.tatiana.proyfinal.CustomScrollView>
 
         </LinearLayout>
 
-    </HorizontalScrollView>
+    </com.cespedes.tatiana.proyfinal.CustomHorizontalScrollView>
 </RelativeLayout>
