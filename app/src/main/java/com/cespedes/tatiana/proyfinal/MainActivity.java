@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity{
                     downy = arg1.getY();
                     path.moveTo(downx,downy);
                     distancia_minima(downx, downy);
-                    canvas.drawPoint((float)minx, (float)miny, paint);
+                    //canvas.drawPoint((float)minx, (float)miny, paint);
                 }
 
                 if (arg1.getAction() == MotionEvent.ACTION_MOVE) {
@@ -132,6 +132,9 @@ public class MainActivity extends AppCompatActivity{
                 if(arg1.getAction() == MotionEvent.ACTION_UP){
                     SVhorizontal.setEnableScrolling(true);
                     SVvertical.setEnableScrolling(true);
+                    canvas.drawLine((float)minx, (float)miny, downx, downy, paint);
+                    distancia_minima(upx, upy);
+                    canvas.drawLine((float)minx, (float)miny, upx, upy, paint);
                 }
                 //Se muestra en pantalla las coordenadas
                 textView.setText(stringBuilder.toString());
