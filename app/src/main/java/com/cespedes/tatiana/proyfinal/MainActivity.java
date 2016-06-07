@@ -5,15 +5,13 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -62,23 +60,8 @@ public class MainActivity extends AppCompatActivity{
         Protoboard.setBackgroundResource(R.drawable.protoboard);
         Protoboard.setImageBitmap(this.bitmap);
 
-
-
-        for (int i = 0; i < 63; i++) {
-            for (int m = 0; m < 5; m++) {
-                canvas.drawPoint((float) ABCDE[i][m].getCoordenada_x(), (float) ABCDE[i][m].getCoordenada_y(), paint);
-                canvas.drawPoint((float) FGHIJ[i][m].getCoordenada_x(), (float) FGHIJ[i][m].getCoordenada_y(), paint);
-            }
-        }
-
-        for (int j = 0; j < 50; j++) {
-            for (int k = 0; k < 2; k++) {
-                canvas.drawPoint((float) VCC[j][k].getCoordenada_x(), (float) VCC[j][k].getCoordenada_y(), paint);
-                canvas.drawPoint((float) GND[j][k].getCoordenada_x(), (float) GND[j][k].getCoordenada_y(), paint);
-            }
-        }
-
-
+        final CustomHorizontalScrollView SVhorizontal = (CustomHorizontalScrollView) findViewById(R.id.SVhorizontal);
+        final CustomScrollView SVvertical = (CustomScrollView) findViewById(R.id.SVvertical);
 
 
 
@@ -110,9 +93,51 @@ public class MainActivity extends AppCompatActivity{
         tab= actionBar.newTab().setTabListener(tabListener).setText("Cable");
         actionBar.addTab(tab);
 
-        tab= actionBar.newTab().setTabListener(tabListener).setText("Circuitos");
+        tab = actionBar.newTab().setTabListener(tabListener).setText("Circuitos");
         actionBar.addTab(tab);
 
+        Protoboard.setOnTouchListener(new View.OnTouchListener() {
+            Path path = new Path();
+            long tiempo, tiempo2;
+            @Override
+            public boolean onTouch(View arg0, MotionEvent arg1) {
+                stringBuilder.setLength(0);
+                //si la acción que se recibe es de movimiento
+                if (arg1.getAction() == MotionEvent.ACTION_DOWN){
+                    tiempo = arg1.getEventTime();
+                    downx = arg1.getX();
+                    downy = arg1.getY();
+                    path.moveTo(downx,downy);
+                    distancia_minima(downx, downy);
+                    canvas.drawPoint((float)minx, (float)miny, paint);
+                }
+
+                if (arg1.getAction() == MotionEvent.ACTION_MOVE) {
+                    tiempo2 = (arg1.getEventTime() - tiempo);
+                    if (tiempo2 > 1000)
+                    {
+                        upx = arg1.getX();
+                        upy = arg1.getY();
+                        path.lineTo(upx, upy);
+                        canvas.drawPath(path, paint);
+                        Protoboard.invalidate();
+                        SVhorizontal.setEnableScrolling(false);
+                        SVvertical.setEnableScrolling(false);
+                    }
+                    stringBuilder.append("Moviendo, X:" + arg1.getX() + ", Y:" + arg1.getY());
+
+                } else {
+                    stringBuilder.append("Detenido, X:" + arg1.getX() + ", Y:" + arg1.getY());
+                }
+                if(arg1.getAction() == MotionEvent.ACTION_UP){
+                    SVhorizontal.setEnableScrolling(true);
+                    SVvertical.setEnableScrolling(true);
+                }
+                //Se muestra en pantalla las coordenadas
+                textView.setText(stringBuilder.toString());
+                return true;
+             }
+        });
 
 
     }
@@ -151,6 +176,41 @@ public class MainActivity extends AppCompatActivity{
             } else {
                 suma += distancia;
             }
+        }
+    }
+
+    public void distancia_minima(double x1, double y1)
+    {
+        double minx1, miny1, miny2;
+        int i = 0, j = 0, k = 0;
+        for (int m = 0; m < 63; m++)
+            for (int n = 0; n < 5; n++)
+            {
+                minx1 = Math.abs(ABCDE[m][n].getCoordenada_x() - x1);
+                miny1 = Math.abs(ABCDE[m][n].getCoordenada_y() - y1);
+                miny2 = Math.abs(FGHIJ[m][n].getCoordenada_y() - y1);
+                if (minx1 < minx)
+                {
+                    minx = minx1;
+                    j = m;
+                }
+                if (miny1 < miny)
+                {
+                    miny = miny1;
+                    i = n;
+                    k = 1;
+                }
+                if (miny2 < miny){
+                    miny = miny2;
+                    i = n;
+                    k = 0;
+                }
+            }
+        minx = ABCDE[j][i].getCoordenada_x();
+        if (k == 1) {
+            miny = ABCDE[j][i].getCoordenada_y();
+        }else{
+            miny = FGHIJ[j][i].getCoordenada_y();
         }
     }
 
