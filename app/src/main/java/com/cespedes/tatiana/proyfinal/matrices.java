@@ -6,6 +6,7 @@ package com.cespedes.tatiana.proyfinal;
 public class matrices {
     double coordenada_x;
     double coordenada_y;
+    int conexion, conexionant;
 
     public double getCoordenada_x() {
 
@@ -15,6 +16,22 @@ public class matrices {
     public double getCoordenada_y() {
 
         return coordenada_y;
+    }
+
+    public int getConexion() {
+        return conexion;
+    }
+
+    public void setConexion(int conexion) {
+        this.conexion = conexion;
+    }
+
+    public int getConexionant() {
+        return conexionant;
+    }
+
+    public void setConexionant(int conexionant) {
+        this.conexionant = conexionant;
     }
 
     public void setCoordenada_x(double coordenada_x) {
@@ -28,5 +45,7 @@ public class matrices {
     public matrices() {
         this.coordenada_x = 0;
         this.coordenada_y = 0;
+        this.conexion=0;
+        this.conexionant=0;
     }
 }

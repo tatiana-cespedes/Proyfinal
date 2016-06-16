@@ -31,8 +31,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="15"
+                        android:orientation="horizontal"
 
                         >
+                        <Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="hola"
+                            android:id="@+id/boton"/>
+
                         <ImageView
                             android:layout_width="match_parent"
                             android:layout_height="60dp"
@@ -40,18 +47,10 @@
                             />
                     </LinearLayout>
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/texto"
-                        android:textColor="@color/colorPrimaryDark"
-                        android:gravity="center"
-                        android:layout_gravity="center"
-                        />
 
                     <ImageView
                         android:layout_width="700dp"
-                        android:layout_height="230dp"
+                        android:layout_height="290dp"
                         android:id="@+id/protoboard"
                         android:src="@drawable/protoboard"
                         />
@@ -63,11 +62,23 @@
                         android:layout_weight="15"
 
                         >
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/texto"
+                            android:textColor="@color/colorPrimaryDark"
+                            android:gravity="center"
+                            android:layout_gravity="center"
+                            />
+
                         <ImageView
                             android:layout_width="match_parent"
                             android:layout_height="60dp"
                             android:src="@drawable/sieteseg"
                             />
+
+
                     </LinearLayout>
 
                 </LinearLayout>
