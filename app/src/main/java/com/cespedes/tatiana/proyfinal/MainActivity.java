@@ -209,6 +209,7 @@ public class MainActivity extends AppCompatActivity{
                 clearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
                 clearPaint.setStyle(Paint.Style.STROKE);
                 clearPaint.setStrokeWidth(9.0F);
+                
                 Protoboard.invalidate();
                 Path path1 = new Path();
                 int l = cables[1].recorrido1.length;
