@@ -32,15 +32,15 @@ public class MainActivity extends AppCompatActivity{
     matrices[][] ABCDE, FGHIJ, GND, VCC;
     matrices[] leds, sieteseg1, vcc1, gnd1 ;
     matrices[][] switchs, relojs;
-    //matrices cables1[], cables2[];
     cables cables[];
     int nCables=0;
 
 
     Bitmap bitmap;
     Canvas canvas;
-    ArrayList<Canvas> canvas2;
-    ArrayList<Paint> paint2;
+   // ArrayList<Canvas> canvas2;
+   // ArrayList<Paint> paint2;
+    ArrayList<matrices> recorrido;
     Paint paint;
     StringBuilder stringBuilder = new StringBuilder();
 
@@ -69,12 +69,14 @@ public class MainActivity extends AppCompatActivity{
         relojs = new matrices[2][3];
 
         cables = new cables[100];
+        recorrido = new ArrayList<>();
+
         inicializar_matrices();
         bitmap = Bitmap.createBitmap(1050, 435, Bitmap.Config.ARGB_8888);
         canvas = new Canvas(bitmap);
-        canvas2 = new ArrayList<>();
+     //   canvas2 = new ArrayList<>();
         paint = new Paint();
-        paint2 = new ArrayList<>();
+     //   paint2 = new ArrayList<>();
         paint.setColor(Color.RED);
         paint.setAntiAlias(true);
         paint.setStyle(Paint.Style.STROKE);
@@ -122,6 +124,7 @@ public class MainActivity extends AppCompatActivity{
         Protoboard.setOnTouchListener(new View.OnTouchListener() {
             Path path = new Path();
             long tiempo, tiempo2, cont = 0;
+            matrices actual;
 
             //int mayor=0;
             @Override
@@ -135,9 +138,8 @@ public class MainActivity extends AppCompatActivity{
                     downy = arg1.getY();
                     path.moveTo(downx, downy);
 
-                    cables[nCables] = new cables();
-                    cables[nCables].p1 = distancia_minima(downx, downy);
-                    canvas2.add(canvas);
+
+                    //canvas2.add(canvas);
 
                     // Toast.makeText(getApplicationContext(), "Cable1:  "+ cables1[nCables].getConexion(), Toast.LENGTH_SHORT).show();
                     // canvas.drawPoint((float)minx, (float)miny, paint);
@@ -146,7 +148,7 @@ public class MainActivity extends AppCompatActivity{
                 if (arg1.getAction() == MotionEvent.ACTION_MOVE) {
                     tiempo2 = (arg1.getEventTime() - tiempo);
                     if (tiempo2 > 500) {
-                        paint2.add(paint);
+                      //  paint2.add(paint);
                         if (cont == 0) {
                             // Toast.makeText(getApplicationContext(), "Cablear", Toast.LENGTH_SHORT).show();
                             cont++;
@@ -157,8 +159,12 @@ public class MainActivity extends AppCompatActivity{
                         upx = arg1.getX();
                         upy = arg1.getY();
                         path.lineTo(upx, upy);
-
-                        canvas2.get(nCables).drawPath(path, paint2.get(nCables));
+                        canvas.drawPath(path, paint);
+                        actual = new matrices();
+                        actual.setCoordenada_x(upx);
+                        actual.setCoordenada_y(upy);
+                        recorrido.add(actual);
+                      //  cables[nCables].recorrido.add(actual);
                         //canvas2.add(canvas);
                         //  canvas.drawLine(downx, downy, upx, upy, paint);
 
@@ -177,13 +183,14 @@ public class MainActivity extends AppCompatActivity{
                     cont = 0;
                     path = new Path();
                     if (tiempo2 > 500) {
-
-                        canvas2.get(nCables).drawLine((float) cables[nCables].p1.getCoordenada_x(), (float) cables[nCables].p1.getCoordenada_y(), downx, downy, paint);
-                        cables[nCables].p2 = distancia_minima(upx, upy);
-                        canvas2.get(nCables).drawLine((float) cables[nCables].p2.getCoordenada_x(), (float) cables[nCables].p2.getCoordenada_y(), upx, upy, paint);
-                        cables[nCables].setNumero(nCables);
+                        cables[nCables] = new cables(recorrido);
+                        recorrido.clear();
+                        cables[nCables].pi = distancia_minima(downx, downy);
+                        canvas.drawLine((float) cables[nCables].pi.getCoordenada_x(), (float) cables[nCables].pi.getCoordenada_y(), downx, downy, paint);
+                        cables[nCables].pf = distancia_minima(upx, upy);
+                        canvas.drawLine((float) cables[nCables].pf.getCoordenada_x(), (float) cables[nCables].pf.getCoordenada_y(), upx, upy, paint);
+                        cables[nCables].numero=nCables;
                         Protoboard.invalidate();  //Refresca el ImageView
-                        // canvas2.get(nCables).drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
                         nCables++;
                     }
                     tiempo2 = 0;
@@ -197,14 +204,22 @@ public class MainActivity extends AppCompatActivity{
         boton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Paint clearPaint = new Paint();
                 clearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-                clearPaint.setStrokeWidth(6.0F);
-              //  canvas2.get(2).drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-                canvas.drawLine(2,2, downx, downy, clearPaint);
+                clearPaint.setStyle(Paint.Style.STROKE);
+                clearPaint.setStrokeWidth(9.0F);
                 Protoboard.invalidate();
-                Toast.makeText(getApplicationContext(), "Cablear", Toast.LENGTH_SHORT).show();
-
+                Path path1 = new Path();
+                int l = cables[1].recorrido1.length;
+                path1.moveTo((float) cables[1].recorrido1[0].getCoordenada_x(), (float) cables[1].recorrido1[0].getCoordenada_y());
+                for(int i= 1; i<l; i++) {
+                    path1.lineTo((float) cables[1].recorrido1[i].getCoordenada_x(), (float) cables[1].recorrido1[i].getCoordenada_y());
+                    canvas.drawPath(path1, clearPaint);
+                    Protoboard.invalidate();
+                }
+                canvas.drawLine((float)cables[1].pi.getCoordenada_x(), (float)cables[1].pi.getCoordenada_y(),(float) cables[1].recorrido1[0].getCoordenada_x(), (float) cables[1].recorrido1[0].getCoordenada_y(), clearPaint);
+                canvas.drawLine((float)cables[1].recorrido1[l-1].getCoordenada_x(), (float)cables[1].recorrido1[l-1].getCoordenada_y(), (float)cables[1].pf.getCoordenada_x(), (float)cables[1].pf.getCoordenada_y(), clearPaint);
             }
         });
 
@@ -246,7 +261,6 @@ public class MainActivity extends AppCompatActivity{
                 FGHIJ[i][m].setCoordenada_y(disy2 + (distancia * m));
                 FGHIJ[i][m].setConexion(i + 63);
                 FGHIJ[i][m].setConexionant(i+63);
-
             }
         }
         for(int j = 0; j < 50; j++) {
