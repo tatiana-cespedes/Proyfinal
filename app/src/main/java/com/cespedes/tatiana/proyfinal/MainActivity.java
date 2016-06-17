@@ -139,6 +139,7 @@ public class MainActivity extends AppCompatActivity{
                     path.moveTo(downx, downy);
                     actual = new matrices();
                     actual = distancia_minima(downx, downy);
+                    
                     if(actual.estado==1){
                         borrarCable(actual.nCable);
                         actual.estado=0;
