@@ -6,7 +6,7 @@ package com.cespedes.tatiana.proyfinal;
 public class matrices {
     double coordenada_x;
     double coordenada_y;
-    int conexion, conexionant;
+    int conexion, conexionant, estado, nCable;
 
     public double getCoordenada_x() {
 
@@ -42,10 +42,28 @@ public class matrices {
         this.coordenada_y = coordenada_y;
     }
 
+    public int getEstado() {
+        return estado;
+    }
+
+    public void setEstado(int estado) {
+        this.estado = estado;
+    }
+
+    public int getnCable() {
+        return nCable;
+    }
+
+    public void setnCable(int nCable) {
+        this.nCable = nCable;
+    }
+
     public matrices() {
         this.coordenada_x = 0;
         this.coordenada_y = 0;
         this.conexion=0;
         this.conexionant=0;
+        this.estado=0;
+        this.nCable=0;
     }
 }

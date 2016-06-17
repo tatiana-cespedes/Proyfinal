@@ -137,12 +137,17 @@ public class MainActivity extends AppCompatActivity{
                     downx = arg1.getX();
                     downy = arg1.getY();
                     path.moveTo(downx, downy);
-
-
-                    //canvas2.add(canvas);
+                    actual = new matrices();
+                    actual = distancia_minima(downx, downy);
+                    if(actual.estado==1){
+                        borrarCable(actual.nCable);
+                        actual.estado=0;
+                        actual.nCable=0;
+                        cambiarestado(actual);
+                    }
 
                     // Toast.makeText(getApplicationContext(), "Cable1:  "+ cables1[nCables].getConexion(), Toast.LENGTH_SHORT).show();
-                    // canvas.drawPoint((float)minx, (float)miny, paint);
+
                 }
 
                 if (arg1.getAction() == MotionEvent.ACTION_MOVE) {
@@ -191,6 +196,19 @@ public class MainActivity extends AppCompatActivity{
                         canvas.drawLine((float) cables[nCables].pf.getCoordenada_x(), (float) cables[nCables].pf.getCoordenada_y(), upx, upy, paint);
                         cables[nCables].numero=nCables;
                         Protoboard.invalidate();  //Refresca el ImageView
+
+
+                        if(cables[nCables].pi.estado==0 && cables[nCables].pf.estado==0){
+                            cables[nCables].pi.estado=1;
+                            cables[nCables].pf.estado=1;
+                            cables[nCables].pi.nCable=nCables;
+                            cables[nCables].pf.nCable=nCables;
+                            cambiarestado(cables[nCables].pi);
+                            cambiarestado(cables[nCables].pf);
+                        }else{
+                            borrarCable(nCables);
+                            Toast.makeText(getApplicationContext(), "Ya está en uso", Toast.LENGTH_SHORT).show();
+                        }
                         nCables++;
                     }
                     tiempo2 = 0;
@@ -204,23 +222,7 @@ public class MainActivity extends AppCompatActivity{
         boton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Paint clearPaint = new Paint();
-                clearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-                clearPaint.setStyle(Paint.Style.STROKE);
-                clearPaint.setStrokeWidth(9.0F);
-                
-                Protoboard.invalidate();
-                Path path1 = new Path();
-                int l = cables[1].recorrido1.length;
-                path1.moveTo((float) cables[1].recorrido1[0].getCoordenada_x(), (float) cables[1].recorrido1[0].getCoordenada_y());
-                for(int i= 1; i<l; i++) {
-                    path1.lineTo((float) cables[1].recorrido1[i].getCoordenada_x(), (float) cables[1].recorrido1[i].getCoordenada_y());
-                    canvas.drawPath(path1, clearPaint);
-                    Protoboard.invalidate();
-                }
-                canvas.drawLine((float)cables[1].pi.getCoordenada_x(), (float)cables[1].pi.getCoordenada_y(),(float) cables[1].recorrido1[0].getCoordenada_x(), (float) cables[1].recorrido1[0].getCoordenada_y(), clearPaint);
-                canvas.drawLine((float)cables[1].recorrido1[l-1].getCoordenada_x(), (float)cables[1].recorrido1[l-1].getCoordenada_y(), (float)cables[1].pf.getCoordenada_x(), (float)cables[1].pf.getCoordenada_y(), clearPaint);
+                borrarCable(1);
             }
         });
 
@@ -238,6 +240,26 @@ public class MainActivity extends AppCompatActivity{
         Toast.makeText(getApplicationContext(), "1:  "+ height + "w: " + width, Toast.LENGTH_SHORT).show();
 
     }*/
+
+    public void borrarCable(int n){
+        Paint clearPaint = new Paint();
+        clearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        clearPaint.setStyle(Paint.Style.STROKE);
+        clearPaint.setStrokeWidth(10.0F);
+
+        Path path1 = new Path();
+        int l = cables[n].recorrido1.length;
+        path1.moveTo((float) cables[n].recorrido1[0].getCoordenada_x(), (float) cables[n].recorrido1[0].getCoordenada_y());
+        for(int i= 1; i<l; i++) {
+            path1.lineTo((float) cables[n].recorrido1[i].getCoordenada_x(), (float) cables[n].recorrido1[i].getCoordenada_y());
+            canvas.drawPath(path1, clearPaint);
+            Protoboard.invalidate();
+        }
+        canvas.drawLine((float)cables[n].pi.getCoordenada_x(), (float)cables[n].pi.getCoordenada_y(),(float) cables[n].recorrido1[0].getCoordenada_x(), (float) cables[n].recorrido1[0].getCoordenada_y(), clearPaint);
+        canvas.drawLine((float)cables[n].recorrido1[l-1].getCoordenada_x(), (float)cables[n].recorrido1[l-1].getCoordenada_y(), (float)cables[n].pf.getCoordenada_x(), (float)cables[n].pf.getCoordenada_y(), clearPaint);
+        Protoboard.invalidate();
+    }
+
 
     public void inicializar_matrices()
     {
@@ -528,6 +550,65 @@ public class MainActivity extends AppCompatActivity{
         return actual;
     }
 
+
+    public void cambiarestado(matrices actual){
+
+        double x2 = actual.getCoordenada_x();
+        double y2 = actual.getCoordenada_y();
+
+        for (int m = 0; m < 63; m++) {
+            for (int n = 0; n < 5; n++) {
+                if(ABCDE[m][n].getCoordenada_y()==x2  && ABCDE[m][n].getCoordenada_y() == y2){
+                    ABCDE[m][n]=actual;
+                }
+                if(FGHIJ[m][n].getCoordenada_y()==x2  && FGHIJ[m][n].getCoordenada_y() == y2){
+                    FGHIJ[m][n]=actual;
+                }
+
+                if(m<50 && n<2) {
+
+                    if(VCC[m][n].getCoordenada_y()==x2  && VCC[m][n].getCoordenada_y() == y2){
+                        VCC[m][n]=actual;
+                    }
+                    if(GND[m][n].getCoordenada_y()==x2  && GND[m][n].getCoordenada_y() == y2){
+                        GND[m][n]=actual;
+                    }
+
+                    if(m<21 && n<1){
+
+                        if(sieteseg1[m].getCoordenada_y()==x2  && sieteseg1[m].getCoordenada_y() == y2){
+                            sieteseg1[m]=actual;
+                        }
+                    }
+
+                    if(m<15 && n<1){
+                        if(leds[m].getCoordenada_y()==x2  && leds[m].getCoordenada_y() == y2){
+                            leds[m]=actual;
+                        }
+                        if(m<5){
+                            if(vcc1[m].getCoordenada_y()==x2  && vcc1[m].getCoordenada_y() == y2){
+                                vcc1[m]=actual;
+                            }
+                            if(gnd1[m].getCoordenada_y()==x2  && gnd1[m].getCoordenada_y() == y2){
+                                gnd1[m]=actual;
+                            }
+                        }
+                    }
+                }
+                if(m<15 && n<3){
+                    if(switchs[m][n].getCoordenada_y()==x2  && switchs[m][n].getCoordenada_y() == y2){
+                        switchs[m][n]=actual;
+                    }
+                    if(m<2){
+                        if(relojs[m][n].getCoordenada_y()==x2  && relojs[m][n].getCoordenada_y() == y2){
+                            relojs[m][n]=actual;
+                        }
+                    }
+                }
+            }
+        }
+
+    }
    /* public int numconexiones(int num1, int num2){
         int cont1=0,cont2=0;
         for (int i = 0; i < 63; i++) {
