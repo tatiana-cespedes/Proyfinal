@@ -12,7 +12,6 @@ public class cables {
     matrices pi, pf;
     matrices[] recorrido1;
     int numero;
-    ArrayList<matrices> mat;
 
     public matrices getPi() {
         return pi;

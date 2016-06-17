@@ -64,6 +64,6 @@ public class matrices {
         this.conexion=0;
         this.conexionant=0;
         this.estado=0;
-        this.nCable=0;
+        this.nCable=10000;
     }
 }

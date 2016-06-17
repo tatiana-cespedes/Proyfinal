@@ -35,6 +35,8 @@ public class MainActivity extends AppCompatActivity{
     cables cables[];
     int nCables=0;
 
+    int borrar=0;
+
 
     Bitmap bitmap;
     Canvas canvas;
@@ -124,9 +126,9 @@ public class MainActivity extends AppCompatActivity{
         Protoboard.setOnTouchListener(new View.OnTouchListener() {
             Path path = new Path();
             long tiempo, tiempo2, cont = 0;
-            matrices actual;
+            matrices punto1, punto2;
+            int nCable2=0;
 
-            //int mayor=0;
             @Override
             public boolean onTouch(View arg0, MotionEvent arg1) {
                 stringBuilder.setLength(0);
@@ -137,14 +139,20 @@ public class MainActivity extends AppCompatActivity{
                     downx = arg1.getX();
                     downy = arg1.getY();
                     path.moveTo(downx, downy);
-                    actual = new matrices();
-                    actual = distancia_minima(downx, downy);
-                    
-                    if(actual.estado==1){
-                        borrarCable(actual.nCable);
-                        actual.estado=0;
-                        actual.nCable=0;
-                        cambiarestado(actual);
+                    punto1 = new matrices();
+                    punto1 = distancia_minima(downx, downy);
+                    Toast.makeText(getApplicationContext(), "Cablesssssssss:  "+ punto1.getnCable(), Toast.LENGTH_SHORT).show();
+
+                    if(punto1.estado==1 && borrar==1){
+                        borrarCable(punto1.nCable);
+                        punto2 = new matrices();
+                        punto2 = buscarOtroExtremo(punto1);
+                        punto1.estado=0;
+                        punto1.nCable=10000;
+                        cambiarestado(punto1);
+                        punto2.estado=0;
+                        punto2.nCable=10000;
+                        cambiarestado(punto2);
                     }
 
                     // Toast.makeText(getApplicationContext(), "Cable1:  "+ cables1[nCables].getConexion(), Toast.LENGTH_SHORT).show();
@@ -159,20 +167,16 @@ public class MainActivity extends AppCompatActivity{
                             // Toast.makeText(getApplicationContext(), "Cablear", Toast.LENGTH_SHORT).show();
                             cont++;
                         } else {
-                            // canvas.clipPath(path);
                             cont = 0;
                         }
                         upx = arg1.getX();
                         upy = arg1.getY();
                         path.lineTo(upx, upy);
                         canvas.drawPath(path, paint);
-                        actual = new matrices();
-                        actual.setCoordenada_x(upx);
-                        actual.setCoordenada_y(upy);
-                        recorrido.add(actual);
-                      //  cables[nCables].recorrido.add(actual);
-                        //canvas2.add(canvas);
-                        //  canvas.drawLine(downx, downy, upx, upy, paint);
+                        punto2 = new matrices();
+                        punto2.setCoordenada_x(upx);
+                        punto2.setCoordenada_y(upy);
+                        recorrido.add(punto2);
 
                         Protoboard.invalidate();
                         SVhorizontal.setEnableScrolling(false);
@@ -196,8 +200,6 @@ public class MainActivity extends AppCompatActivity{
                         cables[nCables].pf = distancia_minima(upx, upy);
                         canvas.drawLine((float) cables[nCables].pf.getCoordenada_x(), (float) cables[nCables].pf.getCoordenada_y(), upx, upy, paint);
                         cables[nCables].numero=nCables;
-                        Protoboard.invalidate();  //Refresca el ImageView
-
 
                         if(cables[nCables].pi.estado==0 && cables[nCables].pf.estado==0){
                             cables[nCables].pi.estado=1;
@@ -206,10 +208,15 @@ public class MainActivity extends AppCompatActivity{
                             cables[nCables].pf.nCable=nCables;
                             cambiarestado(cables[nCables].pi);
                             cambiarestado(cables[nCables].pf);
+
                         }else{
                             borrarCable(nCables);
                             Toast.makeText(getApplicationContext(), "Ya está en uso", Toast.LENGTH_SHORT).show();
+                            nCable2= buscarCable(cables[nCables].pi);
+                            redibujar(nCable2);
+
                         }
+                        Protoboard.invalidate();  //Refresca el ImageView
                         nCables++;
                     }
                     tiempo2 = 0;
@@ -223,7 +230,11 @@ public class MainActivity extends AppCompatActivity{
         boton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                borrarCable(1);
+                if(borrar==0){
+                    borrar=1;
+                }else{
+                    borrar=0;
+                }
             }
         });
 
@@ -258,6 +269,20 @@ public class MainActivity extends AppCompatActivity{
         }
         canvas.drawLine((float)cables[n].pi.getCoordenada_x(), (float)cables[n].pi.getCoordenada_y(),(float) cables[n].recorrido1[0].getCoordenada_x(), (float) cables[n].recorrido1[0].getCoordenada_y(), clearPaint);
         canvas.drawLine((float)cables[n].recorrido1[l-1].getCoordenada_x(), (float)cables[n].recorrido1[l-1].getCoordenada_y(), (float)cables[n].pf.getCoordenada_x(), (float)cables[n].pf.getCoordenada_y(), clearPaint);
+        Protoboard.invalidate();
+    }
+
+    public void redibujar(int n){
+        Path path1 = new Path();
+        int l = cables[n].recorrido1.length;
+        path1.moveTo((float) cables[n].recorrido1[0].getCoordenada_x(), (float) cables[n].recorrido1[0].getCoordenada_y());
+        for(int i= 1; i<l; i++) {
+            path1.lineTo((float) cables[n].recorrido1[i].getCoordenada_x(), (float) cables[n].recorrido1[i].getCoordenada_y());
+            canvas.drawPath(path1, paint);
+            Protoboard.invalidate();
+        }
+        canvas.drawLine((float)cables[n].pi.getCoordenada_x(), (float)cables[n].pi.getCoordenada_y(),(float) cables[n].recorrido1[0].getCoordenada_x(), (float) cables[n].recorrido1[0].getCoordenada_y(), paint);
+        canvas.drawLine((float)cables[n].recorrido1[l-1].getCoordenada_x(), (float)cables[n].recorrido1[l-1].getCoordenada_y(), (float)cables[n].pf.getCoordenada_x(), (float)cables[n].pf.getCoordenada_y(), paint);
         Protoboard.invalidate();
     }
 
@@ -559,57 +584,231 @@ public class MainActivity extends AppCompatActivity{
 
         for (int m = 0; m < 63; m++) {
             for (int n = 0; n < 5; n++) {
-                if(ABCDE[m][n].getCoordenada_y()==x2  && ABCDE[m][n].getCoordenada_y() == y2){
+                if(ABCDE[m][n].getCoordenada_x()==x2  && ABCDE[m][n].getCoordenada_y() == y2){
                     ABCDE[m][n]=actual;
+
+                    Toast.makeText(getApplicationContext(), "ABCDE  "+ ABCDE[m][n].getnCable(), Toast.LENGTH_SHORT).show();
                 }
-                if(FGHIJ[m][n].getCoordenada_y()==x2  && FGHIJ[m][n].getCoordenada_y() == y2){
+                if(FGHIJ[m][n].getCoordenada_x()==x2  && FGHIJ[m][n].getCoordenada_y() == y2){
                     FGHIJ[m][n]=actual;
+                    Toast.makeText(getApplicationContext(), "FGHIJ " + FGHIJ[m][n].getnCable(), Toast.LENGTH_SHORT).show();
                 }
 
                 if(m<50 && n<2) {
 
-                    if(VCC[m][n].getCoordenada_y()==x2  && VCC[m][n].getCoordenada_y() == y2){
+                    if(VCC[m][n].getCoordenada_x()==x2  && VCC[m][n].getCoordenada_y() == y2){
                         VCC[m][n]=actual;
+                        Toast.makeText(getApplicationContext(), "VCC", Toast.LENGTH_SHORT).show();
                     }
-                    if(GND[m][n].getCoordenada_y()==x2  && GND[m][n].getCoordenada_y() == y2){
+                    if(GND[m][n].getCoordenada_x()==x2  && GND[m][n].getCoordenada_y() == y2){
                         GND[m][n]=actual;
+                        Toast.makeText(getApplicationContext(), "GND", Toast.LENGTH_SHORT).show();
                     }
 
                     if(m<21 && n<1){
 
-                        if(sieteseg1[m].getCoordenada_y()==x2  && sieteseg1[m].getCoordenada_y() == y2){
+                        if(sieteseg1[m].getCoordenada_x()==x2  && sieteseg1[m].getCoordenada_y() == y2){
                             sieteseg1[m]=actual;
+                            Toast.makeText(getApplicationContext(), "siete", Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     if(m<15 && n<1){
-                        if(leds[m].getCoordenada_y()==x2  && leds[m].getCoordenada_y() == y2){
+                        if(leds[m].getCoordenada_x()==x2  && leds[m].getCoordenada_y() == y2){
                             leds[m]=actual;
+                            Toast.makeText(getApplicationContext(), "leds", Toast.LENGTH_SHORT).show();
                         }
                         if(m<5){
-                            if(vcc1[m].getCoordenada_y()==x2  && vcc1[m].getCoordenada_y() == y2){
+                            if(vcc1[m].getCoordenada_x()==x2  && vcc1[m].getCoordenada_y() == y2){
                                 vcc1[m]=actual;
+                                Toast.makeText(getApplicationContext(), "vcc1", Toast.LENGTH_SHORT).show();
                             }
-                            if(gnd1[m].getCoordenada_y()==x2  && gnd1[m].getCoordenada_y() == y2){
+                            if(gnd1[m].getCoordenada_x()==x2  && gnd1[m].getCoordenada_y() == y2){
                                 gnd1[m]=actual;
+                                Toast.makeText(getApplicationContext(), "gnd1", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
                 }
                 if(m<15 && n<3){
-                    if(switchs[m][n].getCoordenada_y()==x2  && switchs[m][n].getCoordenada_y() == y2){
+                    if(switchs[m][n].getCoordenada_x()==x2  && switchs[m][n].getCoordenada_y() == y2){
                         switchs[m][n]=actual;
+                        Toast.makeText(getApplicationContext(), "switchs", Toast.LENGTH_SHORT).show();
                     }
                     if(m<2){
-                        if(relojs[m][n].getCoordenada_y()==x2  && relojs[m][n].getCoordenada_y() == y2){
+                        if(relojs[m][n].getCoordenada_x()==x2  && relojs[m][n].getCoordenada_y() == y2){
                             relojs[m][n]=actual;
+                            Toast.makeText(getApplicationContext(), "relojs", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
             }
         }
-
     }
+
+    public int buscarCable(matrices actual){
+
+        double x2 = actual.getCoordenada_x();
+        double y2 = actual.getCoordenada_y();
+        int nCabl=0;
+
+        for (int m = 0; m < 63; m++) {
+            for (int n = 0; n < 5; n++) {
+                if(ABCDE[m][n].getCoordenada_x()==x2  && ABCDE[m][n].getCoordenada_y() == y2){
+                    nCabl= ABCDE[m][n].nCable;
+                    Toast.makeText(getApplicationContext(), "ABCDE", Toast.LENGTH_SHORT).show();
+                }
+                if(FGHIJ[m][n].getCoordenada_x()==x2  && FGHIJ[m][n].getCoordenada_y() == y2){
+                    nCabl= FGHIJ[m][n].nCable;
+                    Toast.makeText(getApplicationContext(), "FGHIJ", Toast.LENGTH_SHORT).show();
+                }
+
+                if(m<50 && n<2) {
+
+                    if(VCC[m][n].getCoordenada_x()==x2  && VCC[m][n].getCoordenada_y() == y2){
+                        nCabl= VCC[m][n].nCable;
+                        Toast.makeText(getApplicationContext(), "VCC", Toast.LENGTH_SHORT).show();
+                    }
+                    if(GND[m][n].getCoordenada_x()==x2  && GND[m][n].getCoordenada_y() == y2){
+                        nCabl= GND[m][n].nCable;
+                        Toast.makeText(getApplicationContext(), "GND", Toast.LENGTH_SHORT).show();
+                    }
+
+                    if(m<21 && n<1){
+
+                        if(sieteseg1[m].getCoordenada_x()==x2  && sieteseg1[m].getCoordenada_y() == y2){
+                            nCabl= sieteseg1[m].nCable;
+                            Toast.makeText(getApplicationContext(), "siete", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    if(m<15 && n<1){
+                        if(leds[m].getCoordenada_x()==x2  && leds[m].getCoordenada_y() == y2){
+                            nCabl= leds[m].nCable;
+                            Toast.makeText(getApplicationContext(), "leds", Toast.LENGTH_SHORT).show();
+                        }
+                        if(m<5){
+                            if(vcc1[m].getCoordenada_x()==x2  && vcc1[m].getCoordenada_y() == y2){
+                                nCabl= vcc1[m].nCable;
+                                Toast.makeText(getApplicationContext(), "vcc1", Toast.LENGTH_SHORT).show();
+                            }
+                            if(gnd1[m].getCoordenada_x()==x2  && gnd1[m].getCoordenada_y() == y2){
+                                nCabl= gnd1[m].nCable;
+                                Toast.makeText(getApplicationContext(), "gnd1", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                }
+                if(m<15 && n<3){
+                    if(switchs[m][n].getCoordenada_x()==x2  && switchs[m][n].getCoordenada_y() == y2){
+                        nCabl= switchs[m][n].nCable;
+                        Toast.makeText(getApplicationContext(), "switchs", Toast.LENGTH_SHORT).show();
+                    }
+                    if(m<2){
+                        if(relojs[m][n].getCoordenada_x()==x2  && relojs[m][n].getCoordenada_y() == y2){
+                            nCabl= relojs[m][n].nCable;
+                            Toast.makeText(getApplicationContext(), "relojs", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+            }
+        }
+        return nCabl;
+    }
+
+
+    public matrices buscarOtroExtremo( matrices punto1){
+        matrices actual = new matrices();
+
+        double x2= punto1.getCoordenada_x();
+        double y2= punto1.getCoordenada_y();
+        int nCabl= punto1.getnCable();
+        Toast.makeText(getApplicationContext(), "llega:  "+ punto1.getnCable(), Toast.LENGTH_SHORT).show();
+
+
+        for (int m = 0; m < 63; m++) {
+            for (int n = 0; n < 5; n++) {
+                if (ABCDE[m][n].getnCable() == nCabl) {
+                    if (ABCDE[m][n].getCoordenada_x() != x2 || ABCDE[m][n].getCoordenada_y() != y2) {
+                        actual = ABCDE[m][n];
+                        Toast.makeText(getApplicationContext(), "ABCDE1  " + nCabl, Toast.LENGTH_SHORT).show();
+                    }
+                }
+                if (FGHIJ[m][n].getnCable() == nCabl) {
+                    if (FGHIJ[m][n].getCoordenada_x() != x2 || FGHIJ[m][n].getCoordenada_y() != y2) {
+                        actual = FGHIJ[m][n];
+                        Toast.makeText(getApplicationContext(), "FGHIJ1   "  + nCabl, Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                if(m<50 && n<2) {
+                    if(VCC[m][n].getnCable()== nCabl) {
+                        if (VCC[m][n].getCoordenada_x() != x2 || VCC[m][n].getCoordenada_y() != y2) {
+                            actual = VCC[m][n];
+                            Toast.makeText(getApplicationContext(), "VCC1  "  + nCabl, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    if(GND[m][n].getnCable()== nCabl){
+                        if (GND[m][n].getCoordenada_x() != x2 || GND[m][n].getCoordenada_y() == y2) {
+                            actual = GND[m][n];
+                            Toast.makeText(getApplicationContext(), "GND1"  + nCabl, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    if(m<21 && n<1) {
+                        if (sieteseg1[m].getnCable() == nCabl){
+                            if (sieteseg1[m].getCoordenada_x() != x2 || sieteseg1[m].getCoordenada_y() != y2) {
+                                actual = sieteseg1[m];
+                                Toast.makeText(getApplicationContext(), "siete1"  + nCabl, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+
+                    if(m<15 && n<1){
+                        if(leds[m].getnCable()==nCabl) {
+                            if (leds[m].getCoordenada_x() != x2 || leds[m].getCoordenada_y() != y2) {
+                                actual= leds[m];
+                                Toast.makeText(getApplicationContext(), "leds1", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        if(m<5){
+                            if(vcc1[m].getnCable()== nCabl) {
+                                if (vcc1[m].getCoordenada_x() != x2 || vcc1[m].getCoordenada_y() != y2) {
+                                    actual=vcc1[m];
+                                    Toast.makeText(getApplicationContext(), "vcc11", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                            if(gnd1[m].getnCable()== nCabl) {
+                                if (gnd1[m].getCoordenada_x() != x2 || gnd1[m].getCoordenada_y() != y2) {
+                                    actual=gnd1[m];
+                                    Toast.makeText(getApplicationContext(), "gnd11", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+                    }
+                }
+                if(m<15 && n<3){
+                    if(switchs[m][n].getnCable() == nCabl) {
+                        if (switchs[m][n].getCoordenada_x() != x2 || switchs[m][n].getCoordenada_y() != y2) {
+                            actual= switchs[m][n];
+                            Toast.makeText(getApplicationContext(), "switchs1", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    if(m<2){
+                        if(relojs[m][n].getnCable() == nCabl) {
+                            if (relojs[m][n].getCoordenada_x() != x2 || relojs[m][n].getCoordenada_y() != y2) {
+                                actual= relojs[m][n];
+                                Toast.makeText(getApplicationContext(), "relojs1", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                }
+
+            }
+
+        }
+        return actual;
+    }
+
    /* public int numconexiones(int num1, int num2){
         int cont1=0,cont2=0;
         for (int i = 0; i < 63; i++) {
